@@ -1,0 +1,105 @@
+package main
+
+import "fmt"
+
+func main() {
+	// 测试用例
+	TemExamples := []struct {
+		input    string
+		expected bool
+		desc     string
+	}{
+		{"()", true, "简单匹配"},
+		{"()[]{}", true, "多种括号"},
+		{"(]", false, "类型不匹配"},
+		{"([)]", false, "交叉不匹配"},
+		{"{[]}", true, "嵌套匹配"},
+		{"", true, "空字符串"},
+		{"((", false, "只有左括号"},
+		{"))", false, "只有右括号"},
+		{"({})", true, "复杂嵌套"},
+		{"({[]})", true, "多层嵌套"},
+	}
+
+	fmt.Println("=== 括号匹配测试 ===")
+	for _, te := range TemExamples {
+		result := isValid(te.input)
+		status := "✓"
+		if result != te.expected {
+			status = "×"
+		}
+		fmt.Printf("%s %s => %v (%s)\n", status, te.input, result, te.desc)
+	}
+
+	// 演示详细过程
+	fmt.Println("\n=== 详细匹配过程 ===")
+	demostrateProcess("({[]})")
+
+}
+
+// 演示匹配过程
+func demostrateProcess(s string) {
+	fmt.Printf("输入: %s\n", s)
+	stack := []rune{}
+
+	pairs := map[rune]rune{
+		')': '(',
+		'}': '{',
+		']': '[',
+	}
+
+	for i, char := range s {
+		fmt.Printf("\n步骤 %d: 处理 '%c'\n", i+1, char)
+
+		if leftBracket, ok := pairs[char]; ok {
+			// 右括号
+			if len(stack) == 0 {
+				fmt.Println("  栈为空,无法匹配")
+				return
+			}
+			if stack[len(stack)-1] != leftBracket {
+				fmt.Printf("  栈顶 '%c'与'%c' 不匹配\n", stack[len(stack)-1], char)
+				return
+			}
+			fmt.Printf(" 匹配成功! 弹出 '%c'\n", stack[len(stack)-1])
+			stack = stack[:len(stack)-1]
+		} else {
+			// 左括号
+			stack = append(stack, char)
+			fmt.Printf("  左括号,入栈\n")
+		}
+		fmt.Printf("  当前栈: %c\n", stack)
+	}
+	if len(stack) == 0 {
+		fmt.Println("\n结果: 有效 ✓")
+	} else {
+		fmt.Printf("\n结果: 无效 × (栈中还剩: %c\n)", stack)
+	}
+}
+
+func isValid(s string) bool {
+	if len(s)%2 == 1 {
+		return false
+	}
+
+	paris := map[rune]rune{
+		')': '(',
+		'}': '{',
+		']': '[',
+	}
+
+	stack := []rune{}
+
+	for _, char := range s {
+		if leftBracket, ok := paris[char]; ok {
+			if len(stack) == 0 || stack[len(stack)-1] != leftBracket {
+				return false
+			}
+			stack = stack[:len(stack)-1]
+		} else {
+			stack = append(stack, char)
+		}
+	}
+
+	return len(stack) == 0
+}

@@ -1,0 +1,43 @@
+package main
+
+import "fmt"
+
+// 查找字符串数组中的最长公共前缀
+func longestCommonPrefix(strs []string) string {
+	if len(strs) == 0 {
+		return ""
+	}
+
+	// 以第一个字符串为基准，逐个字符检查
+	for i := 0; i < len(strs[0]); i++ {
+		char := strs[0][i]
+
+		// 检查其他字符串的相同位置
+		for j := 1; j < len(strs); j++ {
+			// 如果超出长度或字符不同，返回当前前缀
+			if i >= len(strs[j]) || strs[j][i] != char {
+				return strs[0][:i]
+			}
+		}
+	}
+
+	// 第一个字符串就是最长公共前缀
+	return strs[0]
+}
+
+func main() {
+	// 测试示例1
+	strs1 := []string{"flower", "flow", "flight"}
+	fmt.Printf("输入: %v\n", strs1)
+	fmt.Printf("最长公共前缀: \"%s\"\n\n", longestCommonPrefix(strs1))
+
+	// 测试示例2
+	strs2 := []string{"dog", "racecar", "car"}
+	fmt.Printf("输入: %v\n", strs2)
+	fmt.Printf("最长公共前缀: \"%s\"\n\n", longestCommonPrefix(strs2))
+
+	// 测试示例3
+	strs3 := []string{"interview", "internet", "internal"}
+	fmt.Printf("输入: %v\n", strs3)
+	fmt.Printf("最长公共前缀: \"%s\"\n", longestCommonPrefix(strs3))
+}

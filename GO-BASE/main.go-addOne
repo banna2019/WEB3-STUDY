@@ -1,0 +1,45 @@
+package main
+
+import "fmt"
+
+// 给数组表示的整数加一
+func plusOne(digits []int) []int {
+	// 从最后一位开始处理
+	for i := len(digits) - 1; i >= 0; i-- {
+		// 当前位加1
+		digits[i]++
+
+		// 如果没有进位(小于10),直接返回
+		if digits[i] < 10 {
+			return digits
+		}
+
+		// 有进位,当前位设为0,继续处理前一位
+		digits[i] = 0
+	}
+
+	// 如果所有位都进位了,需要在最前面加1
+	return append([]int{1}, digits...)
+}
+
+func main() {
+	// 示例1: 普通情况
+	digits1 := []int{1, 2, 3}
+	fmt.Printf("输入: %v\n", digits1)
+	fmt.Printf("输出: %v\n", plusOne(digits1))
+
+	// 示例2: 有进位
+	digits2 := []int{1, 2, 9}
+	fmt.Printf("输入: %v\n", digits2)
+	fmt.Printf("输出: %v\n", plusOne(digits2))
+
+	// 示例3: 继续进位
+	digits3 := []int{9, 9, 9}
+	fmt.Printf("输入: %v\n", digits3)
+	fmt.Printf("输出: %v\n", plusOne(digits3))
+
+	// 示例4: 单个数字
+	digits4 := []int{9}
+	fmt.Printf("输入: %v\n", digits4)
+	fmt.Printf("输出: %v\n", plusOne(digits4))
+}

@@ -1,0 +1,25 @@
+package main
+
+import "fmt"
+
+func main() {
+	// 测试用例
+	TmpNums := [][]int{
+		{2, 2, 1},
+		{4, 1, 2, 1, 2},
+		{1},
+	}
+
+	for _, TmpNum := range TmpNums {
+		fmt.Printf("数组 %v 中只出现一次的元素是: %d\n", TmpNum, singleNumber(TmpNum))
+	}
+}
+
+func singleNumber(nums []int) int {
+	result := 0
+	for _, num := range nums {
+		result ^= num
+	}
+
+	return result
+}

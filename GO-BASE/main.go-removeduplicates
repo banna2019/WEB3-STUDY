@@ -1,0 +1,51 @@
+package main
+
+import "fmt"
+
+// 删除有序数组中的重复项
+func removeDuplicates(nums []int) int {
+	if len(nums) == 0 {
+		return 0
+	}
+
+	// 慢指针i指向不重复元素的最后位置
+	i := 0
+
+	// 慢指针j遍历数组
+	for j := 1; j < len(nums); j++ {
+		// 发现不同元素
+		if nums[i] != nums[j] {
+			i++               // 慢指针迁移
+			nums[i] = nums[j] // 将不同元素放到正确位置
+		}
+	}
+
+	// 返回不重复元素的个数
+	return i + 1
+}
+
+func main() {
+	// 测试示例1
+	nums1 := []int{1, 2, 3}
+	fmt.Printf("输入: %v\n", nums1)
+	length1 := removeDuplicates(nums1)
+	fmt.Printf("输出: %d, nums = %v\n\n", length1, nums1[:length1])
+
+	// 测试示例2
+	nums2 := []int{0, 0, 1, 1, 1, 2, 2, 3, 3, 4}
+	fmt.Printf("输入: %v\n", nums2)
+	length2 := removeDuplicates(nums2)
+	fmt.Printf("输出: %d, nums = %v\n\n", length2, nums2[:length2])
+
+	// 测试示例3: 没有重复
+	nums3 := []int{1, 2, 3, 4, 5}
+	fmt.Printf("输入: %v\n", nums3)
+	length3 := removeDuplicates(nums3)
+	fmt.Printf("输出: %d, nums = %v\n\n", length3, nums3[:length3])
+
+	// 测试示例4: 全部相同
+	nums4 := []int{1, 1, 1, 1, 1}
+	fmt.Printf("输入: %v\n", nums4)
+	length4 := removeDuplicates(nums4)
+	fmt.Printf("输出: %d, nums = %v\n", length4, nums4[:length4])
+}
