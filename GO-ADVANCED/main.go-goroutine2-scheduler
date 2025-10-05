@@ -1,0 +1,314 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"sync"
+	"time"
+)
+
+// Task 定义任务类型
+type Task func(ctx context.Context) error
+
+// TaskInfo 任务信息结构
+type TaskInfo struct {
+	ID   int
+	Name string
+	Task Task
+}
+
+// TaskResult 任务执行结果
+type TaskResult struct {
+	ID        int
+	Name      string
+	Duration  time.Duration
+	Error     error
+	StartTime time.Time
+	EndTime   time.Time
+}
+
+// TaskScheduler 基于channel的任务调度器
+type TaskScheduler struct {
+	taskChan    chan TaskInfo
+	resultChan  chan TaskResult
+	doneChan    chan bool
+	workerCount int
+	ctx         context.Context
+	cancel      context.CancelFunc
+	workerWg    sync.WaitGroup
+	resultWg    sync.WaitGroup
+}
+
+// NewTaskScheduler 创建新的任务调度器
+func NewTaskScheduler(workerCount int) *TaskScheduler {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	return &TaskScheduler{
+		taskChan:    make(chan TaskInfo, 10),
+		resultChan:  make(chan TaskResult, 10),
+		doneChan:    make(chan bool),
+		workerCount: workerCount,
+		ctx:         ctx,
+		cancel:      cancel,
+	}
+}
+
+// Start 启动任务调度器
+func (ts *TaskScheduler) Start() {
+	fmt.Printf("启动任务调度器，工作协程数量: %d\n", ts.workerCount)
+
+	// 启动工作协程池
+	for i := 0; i < ts.workerCount; i++ {
+		ts.workerWg.Add(1)
+		go ts.worker(i)
+	}
+
+	// 启动结果收集协程
+	ts.resultWg.Add(1)
+	go ts.resultCollector()
+}
+
+// Stop 停止任务调度器
+func (ts *TaskScheduler) Stop() {
+	fmt.Println("正在停止任务调度器...")
+	ts.cancel()
+	close(ts.taskChan)
+
+	// 等待工作协程完成
+	ts.workerWg.Wait()
+
+	// 关闭结果channel
+	close(ts.resultChan)
+
+	// 等待结果收集协程完成
+	ts.resultWg.Wait()
+
+	fmt.Println("任务调度器已停止")
+}
+
+// SubmitTask 提交任务
+func (ts *TaskScheduler) SubmitTask(id int, name string, task Task) {
+	select {
+	case ts.taskChan <- TaskInfo{ID: id, Name: name, Task: task}:
+		fmt.Printf("任务 '%s' 已提交\n", name)
+	case <-ts.ctx.Done():
+		fmt.Printf("任务 '%s' 提交失败，调度器已停止\n", name)
+	}
+}
+
+// worker 工作协程
+func (ts *TaskScheduler) worker(workerID int) {
+	defer ts.workerWg.Done()
+
+	fmt.Printf("工作协程 %d 启动\n", workerID)
+
+	for {
+		select {
+		case taskInfo, ok := <-ts.taskChan:
+			if !ok {
+				fmt.Printf("工作协程 %d 退出\n", workerID)
+				return
+			}
+
+			// 执行任务
+			ts.executeTask(taskInfo)
+
+		case <-ts.ctx.Done():
+			fmt.Printf("工作协程 %d 收到停止信号\n", workerID)
+			return
+		}
+	}
+}
+
+// executeTask 执行单个任务
+func (ts *TaskScheduler) executeTask(taskInfo TaskInfo) {
+	startTime := time.Now()
+
+	fmt.Printf("工作协程开始执行任务: %s\n", taskInfo.Name)
+
+	// 创建带超时的context
+	taskCtx, cancel := context.WithTimeout(ts.ctx, 5*time.Second)
+	defer cancel()
+
+	// 执行任务
+	err := taskInfo.Task(taskCtx)
+
+	endTime := time.Now()
+	duration := endTime.Sub(startTime)
+
+	// 发送结果
+	result := TaskResult{
+		ID:        taskInfo.ID,
+		Name:      taskInfo.Name,
+		Duration:  duration,
+		Error:     err,
+		StartTime: startTime,
+		EndTime:   endTime,
+	}
+
+	select {
+	case ts.resultChan <- result:
+		// 结果发送成功
+	case <-ts.ctx.Done():
+		// 调度器已停止，丢弃结果
+	}
+}
+
+// resultCollector 结果收集协程
+func (ts *TaskScheduler) resultCollector() {
+	defer ts.resultWg.Done()
+
+	var results []TaskResult
+	var mu sync.Mutex
+
+	// 收集所有结果
+	for result := range ts.resultChan {
+		mu.Lock()
+		results = append(results, result)
+
+		// 实时输出任务完成信息
+		if result.Error != nil {
+			fmt.Printf("任务 '%s' 执行失败: %v (耗时: %v)\n",
+				result.Name, result.Error, result.Duration)
+		} else {
+			fmt.Printf("任务 '%s' 执行成功 (耗时: %v)\n",
+				result.Name, result.Duration)
+		}
+		mu.Unlock()
+	}
+
+	// 打印最终摘要
+	mu.Lock()
+	ts.printSummary(results)
+	mu.Unlock()
+
+	// 发送完成信号
+	select {
+	case ts.doneChan <- true:
+	case <-ts.ctx.Done():
+	}
+}
+
+// printSummary 打印执行摘要
+func (ts *TaskScheduler) printSummary(results []TaskResult) {
+	fmt.Println("\n=== 任务执行摘要 ===")
+
+	var totalDuration time.Duration
+	successCount := 0
+
+	for _, result := range results {
+		totalDuration += result.Duration
+		if result.Error == nil {
+			successCount++
+		}
+
+		fmt.Printf("任务: %s | 耗时: %v | 状态: %s\n",
+			result.Name,
+			result.Duration,
+			map[bool]string{true: "成功", false: "失败"}[result.Error == nil])
+	}
+
+	if len(results) > 0 {
+		fmt.Printf("\n总任务数: %d\n", len(results))
+		fmt.Printf("成功任务数: %d\n", successCount)
+		fmt.Printf("失败任务数: %d\n", len(results)-successCount)
+		fmt.Printf("总执行时间: %v\n", totalDuration)
+		fmt.Printf("平均执行时间: %v\n", totalDuration/time.Duration(len(results)))
+	}
+}
+
+// WaitForCompletion 等待所有任务完成
+func (ts *TaskScheduler) WaitForCompletion() {
+	select {
+	case <-ts.doneChan:
+		// 正常完成
+	case <-time.After(5 * time.Second):
+		fmt.Println("等待完成超时")
+	}
+}
+
+// 示例任务函数
+func simulateWork(name string, duration time.Duration) Task {
+	return func(ctx context.Context) error {
+		fmt.Printf("任务 '%s' 开始执行...\n", name)
+
+		select {
+		case <-time.After(duration):
+			fmt.Printf("任务 '%s' 执行完成\n", name)
+			return nil
+		case <-ctx.Done():
+			fmt.Printf("任务 '%s' 被取消\n", name)
+			return ctx.Err()
+		}
+	}
+}
+
+func simulateErrorTask(name string) Task {
+	return func(ctx context.Context) error {
+		fmt.Printf("任务 '%s' 开始执行...\n", name)
+
+		select {
+		case <-time.After(500 * time.Millisecond):
+			return fmt.Errorf("任务 '%s' 模拟执行失败", name)
+		case <-ctx.Done():
+			return ctx.Err()
+		}
+	}
+}
+
+func simulateLongTask(name string) Task {
+	return func(ctx context.Context) error {
+		fmt.Printf("任务 '%s' 开始执行...\n", name)
+
+		// 模拟长时间运行的任务
+		for i := 0; i < 10; i++ {
+			select {
+			case <-time.After(200 * time.Millisecond):
+				fmt.Printf("任务 '%s' 进度: %d/10\n", name, i+1)
+			case <-ctx.Done():
+				fmt.Printf("任务 '%s' 被取消\n", name)
+				return ctx.Err()
+			}
+		}
+
+		fmt.Printf("任务 '%s' 执行完成\n", name)
+		return nil
+	}
+}
+
+func main() {
+	// 创建任务调度器，使用3个工作协程
+	scheduler := NewTaskScheduler(3)
+
+	// 启动调度器
+	scheduler.Start()
+
+	// 提交各种任务
+	scheduler.SubmitTask(1, "快速任务", simulateWork("快速任务", 200*time.Millisecond))
+	scheduler.SubmitTask(2, "中等任务", simulateWork("中等任务", 500*time.Millisecond))
+	scheduler.SubmitTask(3, "慢速任务", simulateWork("慢速任务", 800*time.Millisecond))
+	scheduler.SubmitTask(4, "失败任务", simulateErrorTask("失败任务"))
+	scheduler.SubmitTask(5, "长时间任务", simulateLongTask("长时间任务"))
+	scheduler.SubmitTask(6, "计算任务", func(ctx context.Context) error {
+		fmt.Printf("计算任务开始执行...\n")
+		sum := 0
+		for i := 0; i < 1000000; i++ {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			default:
+				sum += i
+			}
+		}
+		fmt.Printf("计算任务完成，结果: %d\n", sum)
+		return nil
+	})
+
+	// 等待一段时间让任务执行
+	time.Sleep(3 * time.Second)
+
+	// 停止调度器
+	scheduler.Stop()
+
+	fmt.Println("程序执行完毕!")
+}

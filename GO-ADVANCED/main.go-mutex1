@@ -1,0 +1,128 @@
+package main
+
+import (
+	"fmt"
+	"sync"
+	"time"
+)
+
+// Counter 共享计数器结构体
+type Counter struct {
+	value int
+	mutex sync.Mutex
+}
+
+// Increment 安全地递增计数器
+func (c *Counter) Increment() {
+	c.mutex.Lock()         // 获取锁
+	defer c.mutex.Unlock() // 确保锁被释放
+
+	c.value++
+}
+
+// GetValue 安全地获取计数器值
+func (c *Counter) GetValue() int {
+	c.mutex.Lock()         // 获取锁
+	defer c.mutex.Unlock() // 确保锁被释放
+
+	return c.value
+}
+
+// IncrementWorker 工作协程函数
+func IncrementWorker(counter *Counter, workerID int, iterations int, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	fmt.Printf("工作协程 %d 开始执行，将进行 %d 次递增操作\n", workerID, iterations)
+
+	for i := 0; i < iterations; i++ {
+		counter.Increment()
+
+		// 每100次操作输出一次进度
+		if (i+1)%100 == 0 {
+			fmt.Printf("工作协程 %d 已完成 %d 次操作\n", workerID, i+1)
+		}
+	}
+
+	fmt.Printf("工作协程 %d 完成所有操作\n", workerID)
+}
+
+func main() {
+	fmt.Println("=== Go语言互斥锁(Mutex)保护共享资源示例 ===")
+	fmt.Println()
+
+	// 创建共享计数器
+	counter := &Counter{value: 0}
+
+	// 创建WaitGroup用于同步协程
+	var wg sync.WaitGroup
+
+	// 记录开始时间
+	startTime := time.Now()
+
+	// 启动10个工作协程
+	numWorkers := 10
+	iterationsPerWorker := 1000
+
+	fmt.Printf("启动 %d 个工作协程，每个协程将进行 %d 次递增操作\n", numWorkers, iterationsPerWorker)
+	fmt.Printf("预期最终结果: %d\n", numWorkers*iterationsPerWorker)
+	fmt.Println()
+
+	for i := 1; i <= numWorkers; i++ {
+		wg.Add(1)
+		go IncrementWorker(counter, i, iterationsPerWorker, &wg)
+	}
+
+	// 等待所有协程完成
+	wg.Wait()
+
+	// 记录结束时间
+	endTime := time.Now()
+	duration := endTime.Sub(startTime)
+
+	// 输出最终结果
+	fmt.Println()
+	fmt.Println("=== 执行结果 ===")
+	fmt.Printf("最终计数器值: %d\n", counter.GetValue())
+	fmt.Printf("预期值: %d\n", numWorkers*iterationsPerWorker)
+	fmt.Printf("执行时间: %v\n", duration)
+
+	// 验证结果是否正确
+	if counter.GetValue() == numWorkers*iterationsPerWorker {
+		fmt.Println("✓ 结果正确！互斥锁成功保护了共享资源")
+	} else {
+		fmt.Println("× 结果错误！可能存在竞态条件")
+	}
+
+	// 演示不使用互斥锁的问题
+	fmt.Println("\n=== 演示不使用互斥锁的问题 ===")
+	demonstrateRaceCondition()
+}
+
+// demonstrateRaceCondition 演示竞态条件问题
+func demonstrateRaceCondition() {
+	fmt.Println("不使用互斥锁的情况:")
+
+	// 不安全的计数器
+	unsafeCounter := 0
+	var wg sync.WaitGroup
+
+	// 启动多个协程同时修改不安全的计数器
+	for i := 0; i < 5; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for j := 0; j < 1000; j++ {
+				unsafeCounter++ // 不安全的操作
+			}
+		}()
+	}
+
+	wg.Wait()
+	fmt.Printf("不安全计数器的值: %d (预期: 5000)\n", unsafeCounter)
+
+	if unsafeCounter != 5000 {
+		fmt.Println("× 出现了竞态条件！结果不正确")
+	} else {
+		fmt.Println("✓ 这次运气好，没有出现竞态条件")
+	}
+}

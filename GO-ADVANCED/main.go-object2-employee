@@ -1,0 +1,121 @@
+package main
+
+import "fmt"
+
+// Person 人员基础结构体
+type Person struct {
+	Name string
+	Age  int
+}
+
+// Employee 员工结构体，组合了Person
+type Employee struct {
+	Person     // 嵌入Person结构体
+	EmployeeID string
+	Department string
+	Salary     float64
+}
+
+// PrintInfo 打印员工信息的方法
+func (e Employee) PrintInfo() {
+	fmt.Println("=== 员工信息 ===")
+	fmt.Printf("姓名: %s\n", e.Name)
+	fmt.Printf("年龄: %d岁\n", e.Age)
+	fmt.Printf("员工ID: %s\n", e.EmployeeID)
+	fmt.Printf("部门: %s\n", e.Department)
+	fmt.Printf("薪资: %.2f元\n", e.Salary)
+	fmt.Println()
+}
+
+// GetFullInfo 获取员工完整信息的字符串
+func (e Employee) GetFullInfo() string {
+	return fmt.Sprintf("员工[%s] %s, %d岁, %s部门, 薪资%.2f元",
+		e.EmployeeID, e.Name, e.Age, e.Department, e.Salary)
+}
+
+// Promote 员工升职方法
+func (e *Employee) Promote(newDepartment string, salaryIncrease float64) {
+	e.Department = newDepartment
+	e.Salary += salaryIncrease
+	fmt.Printf("%s 升职到 %s 部门，薪资调整为 %.2f元\n", e.Name, newDepartment, e.Salary)
+}
+
+func main() {
+	fmt.Println("=== Go语言结构体组合示例 ===")
+	fmt.Println()
+
+	// 创建Person实例
+	person := Person{
+		Name: "张三",
+		Age:  28,
+	}
+	fmt.Printf("Person实例: %s, %d岁\n", person.Name, person.Age)
+	fmt.Println()
+
+	// 创建Employee实例（使用组合）
+	employee1 := Employee{
+		Person: Person{
+			Name: "李四",
+			Age:  30,
+		},
+		EmployeeID: "EMP001",
+		Department: "技术部",
+		Salary:     15000.0,
+	}
+
+	// 创建Employee实例（另一种方式）
+	employee2 := Employee{
+		Person:     Person{Name: "王五", Age: 25},
+		EmployeeID: "EMP002",
+		Department: "销售部",
+		Salary:     12000.0,
+	}
+
+	// 创建Employee实例（使用字段名）
+	employee3 := Employee{}
+	employee3.Name = "赵六"
+	employee3.Age = 32
+	employee3.EmployeeID = "EMP003"
+	employee3.Department = "人事部"
+	employee3.Salary = 13000.0
+
+	// 调用PrintInfo方法
+	employee1.PrintInfo()
+	employee2.PrintInfo()
+	employee3.PrintInfo()
+
+	// 演示方法调用
+	fmt.Println("=== 方法调用演示 ===")
+	fmt.Println(employee1.GetFullInfo())
+	fmt.Println(employee2.GetFullInfo())
+	fmt.Println(employee3.GetFullInfo())
+	fmt.Println()
+
+	// 演示指针接收者方法
+	fmt.Println("=== 升职演示 ===")
+	employee1.Promote("技术总监", 5000.0)
+	employee2.Promote("销售经理", 3000.0)
+	fmt.Println()
+
+	// 演示组合的优势：可以直接访问嵌入结构体的字段
+	fmt.Println("=== 组合优势演示 ===")
+	fmt.Printf("员工 %s 的姓名: %s\n", employee1.EmployeeID, employee1.Name)
+	fmt.Printf("员工 %s 的年龄: %d\n", employee1.EmployeeID, employee1.Age)
+	fmt.Printf("员工 %s 的部门: %s\n", employee1.EmployeeID, employee1.Department)
+
+	// 创建员工切片
+	fmt.Println("\n=== 员工列表 ===")
+	employees := []Employee{employee1, employee2, employee3}
+
+	for i, emp := range employees {
+		fmt.Printf("%d. %s\n", i+1, emp.GetFullInfo())
+	}
+
+	// 计算平均薪资
+	var totalSalary float64
+	for _, emp := range employees {
+		totalSalary += emp.Salary
+	}
+	avgSalary := totalSalary / float64(len(employees))
+	fmt.Printf("\n平均薪资: %.2f元\n", avgSalary)
+}

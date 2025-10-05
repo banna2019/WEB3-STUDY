@@ -1,0 +1,21 @@
+package main
+
+import "fmt"
+
+// addPtr 函数接收一个整数指针作为参数，将该指针指向的值增加10
+func addPtr(ptr *int) {
+	*ptr += 10
+}
+
+func main() {
+	// 定义一个整数变量
+	num := 5
+
+	// 输出修改前的值
+	fmt.Printf("变量num初始值: %d\n", num)
+
+	// 调用addTen函数，传入num的地址
+	addPtr(&num)
+	// 输出修改后的值
+	fmt.Printf("变量num作为参数传递给addPtr函数后: %d\n", num)
+}

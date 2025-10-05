@@ -1,0 +1,102 @@
+package main
+
+import (
+	"fmt"
+	"math"
+)
+
+// Shape 定义形状接口
+type Shape interface {
+	Area() float64
+	Perimeter() float64
+}
+
+// Rectangle 矩形结构体
+type Rectangle struct {
+	Width  float64
+	Height float64
+}
+
+// Area 计算矩形面积
+func (r Rectangle) Area() float64 {
+	return r.Width * r.Height
+}
+
+// Perimeter 计算矩形周长
+func (r Rectangle) Perimeter() float64 {
+	return 2 * (r.Width + r.Height)
+}
+
+// Circle 圆形结构体
+type Circle struct {
+	Radius float64
+}
+
+// Area 计算圆形面积
+func (c Circle) Area() float64 {
+	return math.Pi * c.Radius * c.Radius
+}
+
+// Perimeter 计算圆形周长
+func (c Circle) Perimeter() float64 {
+	return 2 * math.Pi * c.Radius
+}
+
+// printShapeInfo 打印形状信息的通用函数
+func printShapeInfo(s Shape, name string) {
+	fmt.Printf("%s:\n", name)
+	fmt.Printf("  面积: %.2f\n", s.Area())
+	fmt.Printf("  周长: %.2f\n", s.Perimeter())
+	fmt.Println()
+}
+
+func main() {
+	fmt.Println("=== 形状计算程序 ===")
+	fmt.Println()
+
+	// 创建矩形实例
+	rectangle := Rectangle{
+		Width:  5.0,
+		Height: 3.0,
+	}
+
+	// 创建圆形实例
+	circle := Circle{
+		Radius: 4.0,
+	}
+
+	// 调用方法并打印结果
+	printShapeInfo(rectangle, "矩形")
+	printShapeInfo(circle, "圆形")
+
+	// 演示接口的多态性
+	fmt.Println("=== 使用接口切片演示多态性 ===")
+	shapes := []Shape{
+		Rectangle{Width: 6.0, Height: 4.0},
+		Circle{Radius: 3.0},
+		Rectangle{Width: 8.0, Height: 2.0},
+		Circle{Radius: 5.0},
+	}
+
+	for i, shape := range shapes {
+		switch s := shape.(type) {
+		case Rectangle:
+			fmt.Printf("形状 %d - 矩形 (宽: %.1f, 高: %.1f)\n", i+1, s.Width, s.Height)
+		case Circle:
+			fmt.Printf("形状 %d - 圆形 (半径: %.1f)\n", i+1, s.Radius)
+		}
+		fmt.Printf("  面积: %.2f\n", shape.Area())
+		fmt.Printf("  周长: %.2f\n", shape.Perimeter())
+		fmt.Println()
+	}
+
+	// 计算总面积和总周长
+	var totalArea, totalPerimeter float64
+	for _, shape := range shapes {
+		totalArea += shape.Area()
+		totalPerimeter += shape.Perimeter()
+	}
+
+	fmt.Printf("所有形状的总面积: %.2f\n", totalArea)
+	fmt.Printf("所有形状的总周长: %.2f\n", totalPerimeter)
+}

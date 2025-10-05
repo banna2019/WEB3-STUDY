@@ -1,0 +1,106 @@
+package main
+
+import (
+	"fmt"
+	"sync"
+	"time"
+)
+
+// producer 生产者协程：向带缓冲通道发送100个整数
+func producer(ch chan<- int, wg *sync.WaitGroup) {
+	defer wg.Done()
+	defer close(ch) // 关闭通道，通知消费者没有更多数据
+
+	fmt.Println("生产者协程启动，开始发送100个整数...")
+
+	for i := 1; i <= 100; i++ {
+		ch <- i // 发送数据到带缓冲通道
+
+		// 每发送10个数字输出一次进度
+		if i%10 == 0 {
+			fmt.Printf("生产者已发送: %d/100\n", i)
+		}
+
+		// 添加小延迟以便观察
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	fmt.Println("生产者协程完成，已发送所有100个整数")
+}
+
+// consumer 消费者协程：从带缓冲通道接收整数并打印
+func consumer(ch <-chan int, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	fmt.Println("消费者协程启动，开始接收数据...")
+
+	count := 0
+	for value := range ch {
+		count++
+
+		// 每接收10个数字输出一次进度
+		if count%10 == 0 {
+			fmt.Printf("消费者已接收: %d个数字，当前数字: %d\n", count, value)
+		}
+
+		// 添加小延迟以便观察
+		time.Sleep(15 * time.Millisecond)
+	}
+
+	fmt.Printf("消费者协程完成，总共接收了 %d 个整数\n", count)
+}
+
+func main() {
+	fmt.Println("=== Go语言带缓冲通道通信示例 ===")
+	fmt.Println()
+
+	// 创建带缓冲的通道，缓冲区大小为20
+	ch := make(chan int, 20)
+
+	// 创建WaitGroup用于同步协程
+	var wg sync.WaitGroup
+
+	// 启动生产者协程
+	wg.Add(1)
+	go producer(ch, &wg)
+
+	// 启动消费者协程
+	wg.Add(1)
+	go consumer(ch, &wg)
+
+	// 等待所有协程完成
+	wg.Wait()
+
+	fmt.Println("\n=== 程序执行完毕 ===")
+
+	// 演示带缓冲通道的优势
+	fmt.Println("\n=== 带缓冲通道 vs 无缓冲通道对比 ===")
+	demonstrateBufferedChannel()
+}
+
+// demonstrateBufferedChannel 演示带缓冲通道的优势
+func demonstrateBufferedChannel() {
+	fmt.Println("带缓冲通道的优势:")
+	fmt.Println("- 生产者可以连续发送多个数据而不需要等待消费者")
+	fmt.Println("- 消费者可以批量接收数据，提高效率")
+	fmt.Println("- 减少协程间的阻塞等待时间")
+	fmt.Println("- 适合生产者和消费者速度不匹配的场景")
+
+	// 创建小缓冲通道演示
+	ch := make(chan int, 3)
+
+	go func() {
+		for i := 1; i <= 5; i++ {
+			fmt.Printf("快速发送: %d\n", i)
+			ch <- i
+		}
+		close(ch)
+	}()
+
+	time.Sleep(200 * time.Millisecond) // 让生产者先发送一些数据
+
+	for value := range ch {
+		fmt.Printf("慢速接收: %d\n", value)
+		time.Sleep(300 * time.Millisecond)
+	}
+}

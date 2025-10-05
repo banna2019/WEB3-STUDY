@@ -1,0 +1,74 @@
+package main
+
+import (
+	"fmt"
+	"sync"
+	"time"
+)
+
+/* // 方式一(这样代码数量会少一些)
+// chAddNumbers1 打印从1到10的奇数
+func chAddNumbers1(wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	for i := 1; i <= 10; i += 2 {
+		fmt.Printf("chAddNumbers1奇数协程: %d\n", i)
+		time.Sleep(100 * time.Millisecond) // 添加小延迟以便观察输出
+	}
+}
+
+// chAddNumbers2 打印从2到10的偶数
+func chAddNumbers2(wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	for i := 2; i <= 10; i += 2 {
+		fmt.Printf("chAddNumbers2偶数协程: %d\n", i)
+		time.Sleep(100 * time.Millisecond) // 添加小延迟以便观察输出
+	}
+} */
+
+// 方式二(这样代码数量会多一些,再for循环中需要增加if来判断是否是奇数或偶数)
+// chAddNumbers1 打印从1到10的奇数
+func chAddNumbers1(wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	for i := 1; i <= 10; i++ {
+		if i%2 == 1 {
+			fmt.Printf("chAddNumbers1奇数协程: %d\n", i)
+			time.Sleep(100 * time.Millisecond) // 添加小延迟以便观察输出
+		}
+
+	}
+}
+
+// chAddNumbers2 打印从2到10的偶数
+func chAddNumbers2(wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	for i := 2; i <= 10; i += 2 {
+		if i%2 == 0 {
+			fmt.Printf("chAddNumbers2偶数协程: %d\n", i)
+			time.Sleep(100 * time.Millisecond) // 添加小延迟以便观察输出
+		}
+	}
+}
+
+func main() {
+	// 创建WaitGroup用于等待协程完成
+	var wg sync.WaitGroup
+
+	fmt.Println("开始启动两个协程...")
+
+	// 启动奇数协程
+	wg.Add(1)
+	go chAddNumbers1(&wg)
+
+	// 启动偶数协程
+	wg.Add(1)
+	go chAddNumbers2(&wg)
+
+	// 等待所有协程完成
+	wg.Wait()
+
+	fmt.Println("所有协程执行完毕!")
+}
