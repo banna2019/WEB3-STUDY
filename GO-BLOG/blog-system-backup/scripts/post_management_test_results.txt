@@ -1,0 +1,161 @@
+[0;35m========================================[0m
+[0;35m文章管理功能测试[0m
+[0;35m========================================[0m
+测试时间: Tue Oct 21 21:10:27 CST 2025
+测试URL: http://localhost:8088/api
+测试用户: posttest_1761052227
+
+[1;33m设置测试用户...[0m
+注册响应: {"code":201,"message":"用户注册成功","data":{"email":"posttest_1761052227@example.com","user_id":30,"username":"posttest_1761052227"}}
+登录响应: {"code":200,"message":"登录成功","data":{"email":"posttest_1761052227@example.com","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozMCwidXNlcm5hbWUiOiJwb3N0dGVzdF8xNzYxMDUyMjI3IiwiZXhwIjoxNzYxMTM4NjI3LCJpYXQiOjE3NjEwNTIyMjd9.93Qx4toICTr5HJWNMZKzL6HWeyw5g5C-XWXqxiwHWOU","user_id":30,"username":"posttest_1761052227"}}
+[0;32m✓ 用户设置成功，获取到JWT token[0m
+JWT Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkI...
+
+[0;34m=== 步骤 1: 文章创建功能测试 ===[0m
+[1;33m执行测试: 已认证用户创建文章[0m
+响应状态码: 201
+响应内容: {"code":201,"message":"文章创建成功","data":{"id":32,"title":"测试文章标题","content":"这是一篇测试文章的内容，用于验证文章创建功能。","summary":"","status":"published","user_id":30,"created_at":"2025-10-21T21:10:27.375+08:00","updated_at":"2025-10-21T21:10:27.375+08:00","user":{"id":30,"username":"posttest_1761052227","email":"posttest_1761052227@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T21:10:27.211+08:00","updated_at":"2025-10-21T21:10:27.211+08:00"}}}
+[0;32m✓ 已认证用户创建文章: 通过[0m
+[0;36m详情: 成功创建文章[0m
+
+创建的文章ID: 32
+30
+[1;33m执行测试: 未认证用户创建文章[0m
+请求: POST /posts
+响应状态码: 401
+响应内容: {"code":401,"message":"缺少认证令牌"}
+[0;32m✓ 未认证用户创建文章: 通过[0m
+[0;36m详情: 状态码匹配: 401[0m
+
+[1;33m执行测试: 无效数据创建文章[0m
+请求: POST /posts
+响应状态码: 400
+响应内容: {"code":400,"message":"请求参数错误: Key: 'PostRequest.Title' Error:Field validation for 'Title' failed on the 'required' tag\nKey: 'PostRequest.Content' Error:Field validation for 'Content' failed on the 'required' tag"}
+[0;32m✓ 无效数据创建文章: 通过[0m
+[0;36m详情: 状态码匹配: 400[0m
+
+[1;33m执行测试: 缺少内容字段创建文章[0m
+请求: POST /posts
+响应状态码: 400
+响应内容: {"code":400,"message":"请求参数错误: Key: 'PostRequest.Content' Error:Field validation for 'Content' failed on the 'required' tag"}
+[0;32m✓ 缺少内容字段创建文章: 通过[0m
+[0;36m详情: 状态码匹配: 400[0m
+
+
+[0;34m=== 步骤 2: 文章读取功能测试 ===[0m
+[1;33m执行测试: 获取所有文章列表[0m
+请求: GET /posts
+响应状态码: 200
+响应内容: {"code":200,"message":"获取文章列表成功","data":[{"id":32,"title":"测试文章标题","content":"这是一篇测试文章的内容，用于验证文章创建功能。","summary":"","status":"published","user_id":30,"created_at":"2025-10-21T21:10:27.375+08:00","updated_at":"2025-10-21T21:10:27.375+08:00","user":{"id":30,"username":"posttest_1761052227","email":"posttest_1761052227@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T21:10:27.211+08:00","updated_at":"2025-10-21T21:10:27.211+08:00"}},{"id":31,"title":"测试文章","content":"这是一篇测试文章","summary":"","status":"published","user_id":29,"created_at":"2025-10-21T21:09:47.524+08:00","updated_at":"2025-10-21T21:09:47.524+08:00","user":{"id":29,"username":"testuser_1761052186","email":"testuser_1761052186@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T21:09:46.935+08:00","updated_at":"2025-10-21T21:09:46.935+08:00"}},{"id":30,"title":"长度限制测试文章","content":"测试评论长度限制","summary":"","status":"published","user_id":28,"created_at":"2025-10-21T21:02:03.893+08:00","updated_at":"2025-10-21T21:02:03.893+08:00","user":{"id":28,"username":"lengthtest_1761051718","email":"lengthtest_1761051718@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T21:02:03.696+08:00","updated_at":"2025-10-21T21:02:03.696+08:00"}},{"id":29,"title":"长度限制测试文章","content":"测试评论长度限制","summary":"","status":"published","user_id":27,"created_at":"2025-10-21T21:00:38.854+08:00","updated_at":"2025-10-21T21:00:38.854+08:00","user":{"id":27,"username":"lengthtest_1761051633","email":"lengthtest_1761051633@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T21:00:38.672+08:00","updated_at":"2025-10-21T21:00:38.672+08:00"}},{"id":28,"title":"长度限制测试文章","content":"测试评论长度限制","summary":"","status":"published","user_id":26,"created_at":"2025-10-21T20:59:55.536+08:00","updated_at":"2025-10-21T20:59:55.536+08:00","user":{"id":26,"username":"lengthtest_1761051590","email":"lengthtest_1761051590@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T20:59:55.348+08:00","updated_at":"2025-10-21T20:59:55.348+08:00"}},{"id":27,"title":"长度限制测试文章","content":"测试评论长度限制","summary":"","status":"published","user_id":25,"created_at":"2025-10-21T20:59:00.735+08:00","updated_at":"2025-10-21T20:59:00.735+08:00","user":{"id":25,"username":"lengthtest_1761051535","email":"lengthtest_1761051535@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T20:59:00.518+08:00","updated_at":"2025-10-21T20:59:00.518+08:00"}},{"id":26,"title":"长度测试文章","content":"测试评论长度限制","summary":"","status":"published","user_id":23,"created_at":"2025-10-21T20:57:43.92+08:00","updated_at":"2025-10-21T20:57:43.92+08:00","user":{"id":23,"username":"lengthtest","email":"lengthtest@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T20:57:15.491+08:00","updated_at":"2025-10-21T20:57:15.491+08:00"}},{"id":25,"title":"全面特殊字符测试文章","content":"测试各种特殊字符处理","summary":"","status":"published","user_id":22,"created_at":"2025-10-21T20:56:10.225+08:00","updated_at":"2025-10-21T20:56:10.225+08:00","user":{"id":22,"username":"comprehensive_1761051369","email":"comprehensive_1761051369@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T20:56:09.946+08:00","updated_at":"2025-10-21T20:56:09.946+08:00"}},{"id":24,"title":"评论测试文章","content":"这是一篇用于测试评论功能的文章。","summary":"","status":"published","user_id":20,"created_at":"2025-10-21T20:55:08.307+08:00","updated_at":"2025-10-21T20:55:08.307+08:00","user":{"id":20,"username":"commenttest_1761051307","email":"commenttest_1761051307@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T20:55:08.09+08:00","updated_at":"2025-10-21T20:55:08.09+08:00"}},{"id":23,"title":"特殊字符测试文章","content":"测试特殊字符处理","summary":"","status":"published","user_id":19,"created_at":"2025-10-21T20:54:43.907+08:00","updated_at":"2025-10-21T20:54:43.907+08:00","user":{"id":19,"username":"specialtest_1761051283","email":"specialtest_1761051283@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T20:54:43.708+08:00","updated_at":"2025-10-21T20:54:43.708+08:00"}},{"id":22,"title":"评论测试文章","content":"这是一篇用于测试评论功能的文章。","summary":"","status":"published","user_id":17,"created_at":"2025-10-21T20:15:46.925+08:00","updated_at":"2025-10-21T20:15:46.925+08:00","user":{"id":17,"username":"commenttest_1761048946","email":"commenttest_1761048946@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T20:15:46.664+08:00","updated_at":"2025-10-21T20:15:46.664+08:00"}},{"id":21,"title":"测试文章","content":"测试内容","summary":"","status":"published","user_id":16,"created_at":"2025-10-21T20:14:15.159+08:00","updated_at":"2025-10-21T20:14:15.159+08:00","user":{"id":16,"username":"testuser_1761048854","email":"testuser_1761048854@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T20:14:14.81+08:00","updated_at":"2025-10-21T20:14:14.81+08:00"}},{"id":20,"title":"测试文章","content":"测试内容","summary":"","status":"published","user_id":15,"created_at":"2025-10-21T20:13:31.613+08:00","updated_at":"2025-10-21T20:13:31.613+08:00","user":{"id":15,"username":"testuser_1761048811","email":"testuser_1761048811@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T20:13:31.215+08:00","updated_at":"2025-10-21T20:13:31.215+08:00"}},{"id":19,"title":"评论测试文章","content":"这是一篇用于测试评论功能的文章。","summary":"","status":"published","user_id":13,"created_at":"2025-10-21T20:10:50.429+08:00","updated_at":"2025-10-21T20:10:50.429+08:00","user":{"id":13,"username":"commenttest_1761048619","email":"commenttest_1761048619@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T20:10:20.06+08:00","updated_at":"2025-10-21T20:10:20.06+08:00"}},{"id":18,"title":"评论测试文章","content":"这是一篇用于测试评论功能的文章。","summary":"","status":"published","user_id":13,"created_at":"2025-10-21T20:10:20.328+08:00","updated_at":"2025-10-21T20:10:20.328+08:00","user":{"id":13,"username":"commenttest_1761048619","email":"commenttest_1761048619@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T20:10:20.06+08:00","updated_at":"2025-10-21T20:10:20.06+08:00"}},{"id":17,"title":"测试文章","content":"测试内容","summary":"","status":"published","user_id":11,"created_at":"2025-10-21T20:09:17.961+08:00","updated_at":"2025-10-21T20:09:17.961+08:00","user":{"id":11,"username":"errortest_1761048365","email":"errortest_1761048365@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T20:06:06.042+08:00","updated_at":"2025-10-21T20:06:06.042+08:00"}},{"id":16,"title":"日志测试文章","content":"这是一篇用于测试日志记录的文章","summary":"","status":"published","user_id":11,"created_at":"2025-10-21T20:06:08.473+08:00","updated_at":"2025-10-21T20:06:08.473+08:00","user":{"id":11,"username":"errortest_1761048365","email":"errortest_1761048365@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T20:06:06.042+08:00","updated_at":"2025-10-21T20:06:06.042+08:00"}},{"id":15,"title":"第二个用户的文章","content":"这是第二个用户创建的文章","summary":"","status":"published","user_id":12,"created_at":"2025-10-21T20:06:08.231+08:00","updated_at":"2025-10-21T20:06:08.231+08:00","user":{"id":12,"username":"errortest2_1761048367","email":"errortest2_1761048367@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T20:06:08.025+08:00","updated_at":"2025-10-21T20:06:08.025+08:00"}},{"id":14,"title":"评论测试文章","content":"这是一篇用于测试评论功能的文章。","summary":"","status":"published","user_id":9,"created_at":"2025-10-21T20:05:39.89+08:00","updated_at":"2025-10-21T20:05:39.89+08:00","user":{"id":9,"username":"commenttest_1761048339","email":"commenttest_1761048339@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T20:05:39.667+08:00","updated_at":"2025-10-21T20:05:39.667+08:00"}},{"id":13,"title":"第二个用户的文章","content":"这是第二个用户创建的文章","summary":"","status":"published","user_id":8,"created_at":"2025-10-21T20:05:26.693+08:00","updated_at":"2025-10-21T20:05:26.693+08:00","user":{"id":8,"username":"posttest2_1761048326","email":"posttest2_1761048326@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T20:05:26.239+08:00","updated_at":"2025-10-21T20:05:26.239+08:00"}},{"id":12,"title":"测试文章标题","content":"这是一篇测试文章的内容，用于验证文章创建功能。","summary":"","status":"published","user_id":7,"created_at":"2025-10-21T20:05:25.558+08:00","updated_at":"2025-10-21T20:05:25.558+08:00","user":{"id":7,"username":"posttest_1761048325","email":"posttest_1761048325@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T20:05:25.346+08:00","updated_at":"2025-10-21T20:05:25.346+08:00"}},{"id":11,"title":"测试文章","content":"这是一篇测试文章","summary":"","status":"published","user_id":6,"created_at":"2025-10-21T20:05:12.666+08:00","updated_at":"2025-10-21T20:05:12.666+08:00","user":{"id":6,"username":"testuser_1761048311","email":"testuser_1761048311@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T20:05:11.74+08:00","updated_at":"2025-10-21T20:05:11.74+08:00"}},{"id":1,"title":"Go语言入门指南","content":"Go语言是Google开发的一种静态强类型、编译型、并发型，并具有垃圾回收功能的编程语言...","summary":"本文介绍Go语言的基本概念、语法特性和开发环境搭建，适合初学者入门学习。","status":"published","user_id":1,"created_at":"2025-10-21T19:59:38+08:00","updated_at":"2025-10-21T19:59:38+08:00","user":{"id":1,"username":"admin","email":"admin@example.com","nickname":"管理员","avatar":"https://via.placeholder.com/150","bio":"系统管理员，负责博客系统维护","is_active":true,"post_count":2,"created_at":"2025-10-21T19:59:38+08:00","updated_at":"2025-10-21T19:59:38+08:00"}},{"id":10,"title":"系统监控与日志管理","content":"系统监控和日志管理是运维工作的重要组成部分...","summary":"分享系统监控和日志管理的最佳实践，包括监控指标选择、日志收集分析等。","status":"published","user_id":5,"created_at":"2025-10-21T19:59:38+08:00","updated_at":"2025-10-21T19:59:38+08:00","user":{"id":5,"username":"diana","email":"diana@example.com","nickname":"黛安娜","avatar":"https://via.placeholder.com/150","bio":"UI/UX设计师","is_active":true,"post_count":2,"created_at":"2025-10-21T19:59:38+08:00","updated_at":"2025-10-21T19:59:38+08:00"}},{"id":9,"title":"前端Vue.js开发指南","content":"Vue.js是一套用于构建用户界面的渐进式框架...","summary":"介绍Vue.js的核心概念和开发技巧，包括组件开发、状态管理、路由配置等。","status":"published","user_id":5,"created_at":"2025-10-21T19:59:38+08:00","updated_at":"2025-10-21T19:59:38+08:00","user":{"id":5,"username":"diana","email":"diana@example.com","nickname":"黛安娜","avatar":"https://via.placeholder.com/150","bio":"UI/UX设计师","is_active":true,"post_count":2,"created_at":"2025-10-21T19:59:38+08:00","updated_at":"2025-10-21T19:59:38+08:00"}},{"id":8,"title":"微服务架构实践","content":"微服务架构是一种将单一应用程序开发为一组小型服务的方法...","summary":"探讨微服务架构的设计理念和实践方法，包括服务拆分、通信机制、数据管理等。","status":"published","user_id":4,"created_at":"2025-10-21T19:59:38+08:00","updated_at":"2025-10-21T19:59:38+08:00","user":{"id":4,"username":"charlie","email":"charlie@example.com","nickname":"查理","avatar":"https://via.placeholder.com/150","bio":"后端开发工程师","is_active":true,"post_count":2,"created_at":"2025-10-21T19:59:38+08:00","updated_at":"2025-10-21T19:59:38+08:00"}},{"id":7,"title":"RESTful API设计规范","content":"RESTful API是一种基于REST架构风格的Web API设计规范...","summary":"详细介绍RESTful API的设计原则和最佳实践，包括URL设计、HTTP方法使用等。","status":"published","user_id":4,"created_at":"2025-10-21T19:59:38+08:00","updated_at":"2025-10-21T19:59:38+08:00","user":{"id":4,"username":"charlie","email":"charlie@example.com","nickname":"查理","avatar":"https://via.placeholder.com/150","bio":"后端开发工程师","is_active":true,"post_count":2,"created_at":"2025-10-21T19:59:38+08:00","updated_at":"2025-10-21T19:59:38+08:00"}},{"id":6,"title":"MySQL性能优化技巧","content":"MySQL是最流行的开源关系型数据库之一，性能优化是数据库管理的重要方面...","summary":"分享MySQL性能优化的实用技巧，包括索引优化、查询优化、配置调优等。","status":"published","user_id":3,"created_at":"2025-10-21T19:59:38+08:00","updated_at":"2025-10-21T19:59:38+08:00","user":{"id":3,"username":"bob","email":"bob@example.com","nickname":"鲍勃","avatar":"https://via.placeholder.com/150","bio":"前端开发工程师","is_active":true,"post_count":2,"created_at":"2025-10-21T19:59:38+08:00","updated_at":"2025-10-21T19:59:38+08:00"}},{"id":5,"title":"Docker容器化部署","content":"Docker是一个开源的应用容器引擎，让开发者可以打包应用及依赖包到一个可移植的容器中...","summary":"介绍如何使用Docker进行应用容器化部署，包括Dockerfile编写和Docker Compose使用。","status":"published","user_id":3,"created_at":"2025-10-21T19:59:38+08:00","updated_at":"2025-10-21T19:59:38+08:00","user":{"id":3,"username":"bob","email":"bob@example.com","nickname":"鲍勃","avatar":"https://via.placeholder.com/150","bio":"前端开发工程师","is_active":true,"post_count":2,"created_at":"2025-10-21T19:59:38+08:00","updated_at":"2025-10-21T19:59:38+08:00"}},{"id":4,"title":"JWT认证机制实现","content":"JWT(JSON Web Token)是一种用于安全传输信息的开放标准...","summary":"详细介绍JWT的原理和实现方法，包括token生成、验证和刷新机制。","status":"published","user_id":2,"created_at":"2025-10-21T19:59:38+08:00","updated_at":"2025-10-21T19:59:38+08:00","user":{"id":2,"username":"alice","email":"alice@example.com","nickname":"爱丽丝","avatar":"https://via.placeholder.com/150","bio":"热爱写作的技术博主","is_active":true,"post_count":2,"created_at":"2025-10-21T19:59:38+08:00","updated_at":"2025-10-21T19:59:38+08:00"}},{"id":3,"title":"GORM数据库操作详解","content":"GORM是Go语言中最受欢迎的ORM库之一，提供了丰富的数据库操作功能...","summary":"全面介绍GORM的使用方法，包括模型定义、CRUD操作、关联查询等。","status":"published","user_id":2,"created_at":"2025-10-21T19:59:38+08:00","updated_at":"2025-10-21T19:59:38+08:00","user":{"id":2,"username":"alice","email":"alice@example.com","nickname":"爱丽丝","avatar":"https://via.placeholder.com/150","bio":"热爱写作的技术博主","is_active":true,"post_count":2,"created_at":"2025-10-21T19:59:38+08:00","updated_at":"2025-10-21T19:59:38+08:00"}},{"id":2,"title":"Gin框架快速上手","content":"Gin是一个用Go语言编写的Web框架，具有高性能、易用性强的特点...","summary":"详细介绍Gin框架的使用方法，包括路由、中间件、参数绑定等核心功能。","status":"published","user_id":1,"created_at":"2025-10-21T19:59:38+08:00","updated_at":"2025-10-21T19:59:38+08:00","user":{"id":1,"username":"admin","email":"admin@example.com","nickname":"管理员","avatar":"https://via.placeholder.com/150","bio":"系统管理员，负责博客系统维护","is_active":true,"post_count":2,"created_at":"2025-10-21T19:59:38+08:00","updated_at":"2025-10-21T19:59:38+08:00"}}]}
+[0;32m✓ 获取所有文章列表: 通过[0m
+[0;36m详情: 状态码匹配: 200[0m
+
+[1;33m执行测试: 获取单个文章详情[0m
+请求: GET /posts/32
+30
+响应状态码: 000
+响应内容: 
+[0;31m✗ 获取单个文章详情: 失败[0m
+[0;36m详情: 期望状态码: 200, 实际状态码: 000[0m
+
+[1;33m执行测试: 获取不存在的文章[0m
+请求: GET /posts/99999
+响应状态码: 404
+响应内容: {"code":404,"message":"文章不存在"}
+[0;32m✓ 获取不存在的文章: 通过[0m
+[0;36m详情: 状态码匹配: 404[0m
+
+
+[0;34m=== 步骤 3: 文章更新功能测试 ===[0m
+[1;33m执行测试: 文章作者更新自己的文章[0m
+请求: PUT /posts/32
+30
+响应状态码: 000
+响应内容: 
+[0;31m✗ 文章作者更新自己的文章: 失败[0m
+[0;36m详情: 期望状态码: 200, 实际状态码: 000[0m
+
+[1;33m执行测试: 验证文章更新结果[0m
+更新后的文章内容: 
+[0;31m✗ 验证文章更新结果: 失败[0m
+[0;36m详情: 文章内容未更新[0m
+
+[1;33m执行测试: 未认证用户更新文章[0m
+请求: PUT /posts/32
+30
+响应状态码: 000
+响应内容: 
+[0;31m✗ 未认证用户更新文章: 失败[0m
+[0;36m详情: 期望状态码: 401, 实际状态码: 000[0m
+
+[1;33m执行测试: 更新不存在的文章[0m
+请求: PUT /posts/99999
+响应状态码: 404
+响应内容: {"code":404,"message":"文章不存在"}
+[0;32m✓ 更新不存在的文章: 通过[0m
+[0;36m详情: 状态码匹配: 404[0m
+
+
+[0;34m=== 步骤 4: 文章删除功能测试 ===[0m
+[1;33m执行测试: 文章作者删除自己的文章[0m
+请求: DELETE /posts/32
+30
+响应状态码: 000
+响应内容: 
+[0;31m✗ 文章作者删除自己的文章: 失败[0m
+[0;36m详情: 期望状态码: 200, 实际状态码: 000[0m
+
+[1;33m执行测试: 验证文章删除结果[0m
+删除验证响应状态码: 000
+[0;31m✗ 验证文章删除结果: 失败[0m
+[0;36m详情: 文章未删除，状态码: 000[0m
+
+[1;33m执行测试: 未认证用户删除文章[0m
+请求: DELETE /posts/1
+响应状态码: 401
+响应内容: {"code":401,"message":"缺少认证令牌"}
+[0;32m✓ 未认证用户删除文章: 通过[0m
+[0;36m详情: 状态码匹配: 401[0m
+
+[1;33m执行测试: 删除不存在的文章[0m
+请求: DELETE /posts/99999
+响应状态码: 404
+响应内容: {"code":404,"message":"文章不存在"}
+[0;32m✓ 删除不存在的文章: 通过[0m
+[0;36m详情: 状态码匹配: 404[0m
+
+
+[0;34m=== 步骤 5: 权限控制测试 ===[0m
+[1;33m创建第二个用户进行权限测试...[0m
+第二个用户注册响应: {"code":201,"message":"用户注册成功","data":{"email":"posttest2_1761052228@example.com","user_id":31,"username":"posttest2_1761052228"}}
+第二个用户登录响应: {"code":200,"message":"登录成功","data":{"email":"posttest2_1761052228@example.com","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozMSwidXNlcm5hbWUiOiJwb3N0dGVzdDJfMTc2MTA1MjIyOCIsImV4cCI6MTc2MTEzODYyOCwiaWF0IjoxNzYxMDUyMjI4fQ.JjYWxPhBdcyc1TmibWrIIh_JmEA6C7EwDj0kI40lb9I","user_id":31,"username":"posttest2_1761052228"}}
+[0;32m✓ 第二个用户设置成功[0m
+[1;33m第二个用户创建文章...[0m
+第二个用户创建文章响应: {"code":201,"message":"文章创建成功","data":{"id":33,"title":"第二个用户的文章","content":"这是第二个用户创建的文章","summary":"","status":"published","user_id":31,"created_at":"2025-10-21T21:10:28.928+08:00","updated_at":"2025-10-21T21:10:28.928+08:00","user":{"id":31,"username":"posttest2_1761052228","email":"posttest2_1761052228@example.com","nickname":"","avatar":"","bio":"","is_active":true,"post_count":0,"created_at":"2025-10-21T21:10:28.727+08:00","updated_at":"2025-10-21T21:10:28.727+08:00"}}}
+第二个用户创建的文章ID: 33
+31
+[1;33m执行测试: 第一个用户更新第二个用户的文章[0m
+请求: PUT /posts/33
+31
+响应状态码: 000
+响应内容: 
+[0;31m✗ 第一个用户更新第二个用户的文章: 失败[0m
+[0;36m详情: 期望状态码: 403, 实际状态码: 000[0m
+
+[1;33m执行测试: 第一个用户删除第二个用户的文章[0m
+请求: DELETE /posts/33
+31
+响应状态码: 000
+响应内容: 
+[0;31m✗ 第一个用户删除第二个用户的文章: 失败[0m
+[0;36m详情: 期望状态码: 403, 实际状态码: 000[0m
+
+
+[0;35m========================================[0m
+[0;35m文章管理功能测试总结[0m
+[0;35m========================================[0m
+总测试数: 17
+通过: [0;32m9[0m
+失败: [0;31m8[0m
+
+[0;31m❌ 有 8 个测试失败，需要检查相关功能[0m

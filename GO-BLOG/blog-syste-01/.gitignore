@@ -1,0 +1,64 @@
+# 编译产物
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+blog-system
+
+# 测试二进制文件
+*.test
+
+# 输出目录
+/dist/
+
+# Go工作区文件
+go.work
+
+# 依赖目录
+vendor/
+
+# 数据库文件
+*.db
+*.sqlite
+*.sqlite3
+
+# 环境变量文件
+.env
+.env.local
+.env.production
+
+# 日志文件
+*.log
+
+# 环境变量文件
+.env
+.env.local
+.env.production
+
+# IDE文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS生成的文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 临时文件
+tmp/
+temp/
+
+# 数据目录
+data/
+
+# 备份文件
+*.bak
+*.backup

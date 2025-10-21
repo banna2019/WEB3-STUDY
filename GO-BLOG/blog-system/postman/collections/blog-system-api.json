@@ -1,0 +1,1026 @@
+{
+	"info": {
+		"_postman_id": "3027c300-8b32-4445-9be1-846f0d5a8eec",
+		"name": "博客系统API集合",
+		"description": "博客系统的完整API测试集合，包含用户认证、文章管理、评论功能、错误处理等",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11302039",
+		"_collection_link": "https://lunar-resonance-638782.postman.co/workspace/blog-system~0249d773-7257-450b-a1f3-62cbc4df0f01/collection/11302039-3027c300-8b32-4445-9be1-846f0d5a8eec?action=share&source=collection_link&creator=11302039"
+	},
+	"item": [
+		{
+			"name": "用户认证",
+			"item": [
+				{
+					"name": "用户注册",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"console.log('🔍 [Pre-request] 开始执行注册Pre-request Script');",
+									"",
+									"// 生成随机用户名和密码",
+									"const timestamp = Date.now();",
+									"const randomSuffix = Math.floor(Math.random() * 1000);",
+									"const randomPassword = Math.random().toString(36).slice(-8);",
+									"const dynamicUsername = `testuser_${timestamp}_${randomSuffix}`;",
+									"const dynamicEmail = `test_${timestamp}_${randomSuffix}@example.com`;",
+									"",
+									"// 保存到全局环境变量",
+									"pm.globals.set('global_username', dynamicUsername);",
+									"pm.globals.set('global_password', randomPassword);",
+									"pm.globals.set('global_email', dynamicEmail);",
+									"",
+									"// 更新请求体",
+									"const requestBody = JSON.parse(pm.request.body.raw);",
+									"requestBody.username = dynamicUsername;",
+									"requestBody.password = randomPassword;",
+									"requestBody.email = dynamicEmail;",
+									"pm.request.body.raw = JSON.stringify(requestBody);",
+									"",
+									"console.log('🔍 [Pre-request] 注册Pre-request Script执行完成');"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('用户注册成功', function () {",
+									"    pm.response.to.have.status(201);",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson.data).to.have.property('user_id');",
+									"    pm.expect(responseJson.data).to.have.property('username');",
+									"    pm.expect(responseJson.data).to.have.property('email');",
+									"});",
+									"",
+									"if (pm.response.code === 201) {",
+									"    const responseJson = pm.response.json();",
+									"    pm.environment.set('user_id', responseJson.data.user_id);",
+									"    pm.environment.set('registered_username', responseJson.data.username);",
+									"    pm.environment.set('registered_email', responseJson.data.email);",
+									"    console.log('✅ 用户注册成功');",
+									"    console.log('📝 用户名:', responseJson.data.username);",
+									"    console.log('📧 邮箱:', responseJson.data.email);",
+									"    console.log('🆔 用户ID:', responseJson.data.user_id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"\",\n  \"password\": \"\",\n  \"email\": \"\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "用户登录",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const globalUsername = pm.globals.get('global_username');",
+									"const globalPassword = pm.globals.get('global_password');",
+									"",
+									"if (globalUsername && globalPassword) {",
+									"    const requestBody = JSON.parse(pm.request.body.raw);",
+									"    requestBody.username = globalUsername;",
+									"    requestBody.password = globalPassword;",
+									"    pm.request.body.raw = JSON.stringify(requestBody);",
+									"    console.log('✅ 使用全局用户名和密码进行登录');",
+									"} else {",
+									"    console.log('❌ 未找到全局用户名或密码');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('用户登录成功', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson.data).to.have.property('token');",
+									"    pm.expect(responseJson.data).to.have.property('user_id');",
+									"    pm.expect(responseJson.data).to.have.property('username');",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    const responseJson = pm.response.json();",
+									"    pm.environment.set('jwt_token', responseJson.data.token);",
+									"    pm.environment.set('user_id', responseJson.data.user_id);",
+									"    pm.environment.set('logged_in_username', responseJson.data.username);",
+									"    pm.globals.set('register_username', responseJson.data.username);",
+									"    pm.globals.set('jwt_token', responseJson.data.token);",
+									"    console.log('✅ 用户登录成功');",
+									"    console.log('🔑 JWT令牌已保存');",
+									"    console.log('👤 登录用户:', responseJson.data.username);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"\",\n  \"password\": \"\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "用户注册、登录、认证相关接口"
+		},
+		{
+			"name": "文章管理",
+			"item": [
+				{
+					"name": "创建文章",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('文章创建成功', function () {",
+									"    pm.response.to.have.status(201);",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson.data).to.have.property('id');",
+									"    pm.expect(responseJson.data).to.have.property('title');",
+									"    pm.expect(responseJson.data).to.have.property('content');",
+									"});",
+									"",
+									"if (pm.response.code === 201) {",
+									"    const responseJson = pm.response.json();",
+									"    pm.environment.set('post_id', responseJson.data.id);",
+									"    console.log('✅ 文章创建成功');",
+									"    console.log('📝 文章标题:', responseJson.data.title);",
+									"    console.log('🆔 文章ID:', responseJson.data.id);",
+									"} else if (pm.response.code === 401) {",
+									"    console.log('❌ 认证失败');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"我的第一篇文章\",\n  \"content\": \"这是文章的内容，包含详细的描述信息。\",\n  \"summary\": \"文章摘要\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/posts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "获取所有文章",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('获取文章列表成功', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson.data).to.be.an('array');",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    const responseJson = pm.response.json();",
+									"    console.log('✅ 文章列表获取成功');",
+									"    console.log('📝 文章数量:', responseJson.data.length);",
+									"} else if (pm.response.code === 401) {",
+									"    console.log('❌ 认证失败: 请先登录获取JWT令牌');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/posts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "获取单个文章",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('获取单个文章成功', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson.data).to.have.property('id');",
+									"    pm.expect(responseJson.data).to.have.property('title');",
+									"    pm.expect(responseJson.data).to.have.property('content');",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    const responseJson = pm.response.json();",
+									"    console.log('✅ 单个文章获取成功');",
+									"    console.log('📝 文章标题:', responseJson.data.title);",
+									"} else if (pm.response.code === 401) {",
+									"    console.log('❌ 认证失败: 请先登录获取JWT令牌');",
+									"} else if (pm.response.code === 404) {",
+									"    console.log('❌ 文章不存在');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/posts/{{post_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								"{{post_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "更新文章",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('文章更新成功', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson.data).to.have.property('id');",
+									"    pm.expect(responseJson.data).to.have.property('title');",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    console.log('✅ 文章更新成功');",
+									"} else if (pm.response.code === 401) {",
+									"    console.log('❌ 认证失败');",
+									"} else if (pm.response.code === 403) {",
+									"    console.log('❌ 权限不足');",
+									"} else if (pm.response.code === 404) {",
+									"    console.log('❌ 文章不存在');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"更新后的文章标题\",\n  \"content\": \"这是更新后的文章内容。\",\n  \"summary\": \"更新后的摘要\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/posts/{{post_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								"{{post_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "删除文章",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('文章删除成功', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    console.log('✅ 文章删除成功');",
+									"} else if (pm.response.code === 401) {",
+									"    console.log('❌ 认证失败');",
+									"} else if (pm.response.code === 403) {",
+									"    console.log('❌ 权限不足');",
+									"} else if (pm.response.code === 404) {",
+									"    console.log('❌ 文章不存在');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/posts/{{post_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								"{{post_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "文章的创建、读取、更新、删除功能"
+		},
+		{
+			"name": "评论功能",
+			"item": [
+				{
+					"name": "获取最后一篇文章ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('获取最后一篇文章ID成功', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson.data).to.have.property('id');",
+									"    pm.expect(responseJson.data).to.have.property('title');",
+									"    pm.expect(responseJson.data).to.have.property('content');",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    const responseJson = pm.response.json();",
+									"    pm.globals.set('post_id', responseJson.data.id);",
+									"    pm.environment.set('post_id', responseJson.data.id);",
+									"    console.log('✅ 获取最后一篇文章ID成功');",
+									"    console.log('📝 文章标题:', responseJson.data.title);",
+									"    console.log('🆔 文章ID:', responseJson.data.id);",
+									"    console.log('💡 文章ID已保存到全局变量post_id:', pm.globals.get('post_id'));",
+									"} else if (pm.response.code === 401) {",
+									"    console.log('❌ 认证失败: 请先登录获取JWT令牌');",
+									"} else if (pm.response.code === 404) {",
+									"    console.log('❌ 没有找到文章');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/latest-post",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"latest-post"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "创建评论",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('评论创建成功', function () {",
+									"    pm.response.to.have.status(201);",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson.data).to.have.property('id');",
+									"    pm.expect(responseJson.data).to.have.property('content');",
+									"});",
+									"",
+									"if (pm.response.code === 201) {",
+									"    const responseJson = pm.response.json();",
+									"    pm.environment.set('comment_id', responseJson.data.id);",
+									"    console.log('✅ 评论创建成功');",
+									"    console.log('💬 评论内容:', responseJson.data.content);",
+									"    console.log('🆔 评论ID:', responseJson.data.id);",
+									"} else if (pm.response.code === 401) {",
+									"    console.log('❌ 认证失败');",
+									"} else if (pm.response.code === 404) {",
+									"    console.log('❌ 文章不存在');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"这是一条测试评论\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/posts/{{post_id}}/comments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								"{{post_id}}",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "获取文章评论",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('获取评论列表成功', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson.data).to.be.an('array');",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    const responseJson = pm.response.json();",
+									"    console.log('✅ 评论列表获取成功');",
+									"    console.log('💬 评论数量:', responseJson.data.length);",
+									"} else if (pm.response.code === 401) {",
+									"    console.log('❌ 认证失败: 请先登录获取JWT令牌');",
+									"} else if (pm.response.code === 404) {",
+									"    console.log('❌ 文章不存在');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/posts/{{post_id}}/comments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								"{{post_id}}",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "获取单个评论",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('获取单个评论成功', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson.data).to.have.property('id');",
+									"    pm.expect(responseJson.data).to.have.property('content');",
+									"    pm.expect(responseJson.data).to.have.property('post_id');",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    const responseJson = pm.response.json();",
+									"    console.log('✅ 单个评论获取成功');",
+									"    console.log('💬 评论内容:', responseJson.data.content);",
+									"    console.log('👤 评论作者:', responseJson.data.author);",
+									"    console.log('📝 所属文章ID:', responseJson.data.post_id);",
+									"} else if (pm.response.code === 401) {",
+									"    console.log('❌ 认证失败: 请先登录获取JWT令牌');",
+									"} else if (pm.response.code === 404) {",
+									"    console.log('❌ 评论不存在: 请检查评论ID是否正确');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/comments/{{comment_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"comments",
+								"{{comment_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "更新评论",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('评论更新成功', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson.data).to.have.property('id');",
+									"    pm.expect(responseJson.data).to.have.property('content');",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    const responseJson = pm.response.json();",
+									"    console.log('✅ 评论更新成功');",
+									"    console.log('💬 更新后内容:', responseJson.data.content);",
+									"    console.log('🆔 评论ID:', responseJson.data.id);",
+									"} else if (pm.response.code === 401) {",
+									"    console.log('❌ 认证失败: 请检查JWT令牌是否有效');",
+									"} else if (pm.response.code === 403) {",
+									"    console.log('❌ 权限不足: 只有评论作者才能更新评论');",
+									"} else if (pm.response.code === 404) {",
+									"    console.log('❌ 评论不存在: 请检查评论ID是否正确');",
+									"} else if (pm.response.code === 400) {",
+									"    console.log('❌ 数据验证失败: 请检查评论内容格式');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"这是更新后的评论内容\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/comments/{{comment_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"comments",
+								"{{comment_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "删除评论",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('评论删除成功', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    console.log('✅ 评论删除成功');",
+									"    console.log('💡 提示: 评论已被永久删除');",
+									"} else if (pm.response.code === 401) {",
+									"    console.log('❌ 认证失败: 请检查JWT令牌是否有效');",
+									"} else if (pm.response.code === 403) {",
+									"    console.log('❌ 权限不足: 只有评论作者才能删除评论');",
+									"} else if (pm.response.code === 404) {",
+									"    console.log('❌ 评论不存在: 请检查评论ID是否正确');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/comments/{{comment_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"comments",
+								"{{comment_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "评论的创建、读取、更新、删除功能"
+		},
+		{
+			"name": "错误处理测试",
+			"item": [
+				{
+					"name": "重复用户名注册",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('重复用户名注册失败', function () {",
+									"    pm.response.to.have.status(409);",
+									"});",
+									"",
+									"if (pm.response.code === 409) {",
+									"    console.log('✅ 重复用户名注册正确返回409');",
+									"} else {",
+									"    console.log('❌ 预期409状态码，实际:', pm.response.code);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{registered_username}}\",\n  \"password\": \"password123\",\n  \"email\": \"duplicate@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "无效登录凭据",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('无效登录凭据失败', function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									"if (pm.response.code === 401) {",
+									"    console.log('✅ 无效登录凭据正确返回401');",
+									"} else {",
+									"    console.log('❌ 预期401状态码，实际:', pm.response.code);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"invaliduser\",\n  \"password\": \"wrongpassword\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "无认证创建文章",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('无认证创建文章失败', function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									"if (pm.response.code === 401) {",
+									"    console.log('✅ 无认证创建文章正确返回401');",
+									"} else {",
+									"    console.log('❌ 预期401状态码，实际:', pm.response.code);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"无认证文章\",\n  \"content\": \"这是无认证创建的文章\",\n  \"summary\": \"无认证摘要\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/posts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "获取不存在文章",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('获取不存在文章失败', function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"if (pm.response.code === 401) {",
+									"    console.log('✅ 获取不存在文章正确返回401（需要认证）');",
+									"} else if (pm.response.code === 404) {",
+									"    console.log('✅ 获取不存在文章正确返回404');",
+									"} else {",
+									"    console.log('❌ 预期404状态码，实际:', pm.response.code);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/posts/99999",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								"99999"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "数据验证测试",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('数据验证测试失败', function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"if (pm.response.code === 400) {",
+									"    console.log('✅ 数据验证测试正确返回400');",
+									"} else {",
+									"    console.log('❌ 预期400状态码，实际:', pm.response.code);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"\",\n  \"content\": \"\",\n  \"summary\": \"\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/posts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"posts"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "测试各种错误情况和边界条件"
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8088",
+			"description": "API基础URL"
+		}
+	]
+}
