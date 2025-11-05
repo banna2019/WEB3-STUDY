@@ -1,0 +1,34 @@
+{
+  "name": "BinarySearch",
+  "version": "1.0.0",
+  "description": "Hardhat-based Solidity smart contract project",
+  "main": "index.js",
+  "scripts": {
+    "test": "hardhat test",
+    "test:binary-search": "hardhat test test/BinarySearch.js",
+    "test:interactive": "hardhat run scripts/test-binary-search.js --network hardhat",
+    "compile": "hardhat compile",
+    "node": "hardhat node",
+    "check-config": "node scripts/check-config.js",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
+    "deploy:all": "hardhat run scripts/deploy-all.js --network sepolia",
+    "verify": "echo '❌ 请使用以下方式验证合约:' && echo '1. npm run verify:contract -- --address <合约地址>' && echo '2. npm run verify:direct -- <合约地址>' && echo '3. npx hardhat verify --network sepolia <合约地址>'",
+    "verify:contract": "hardhat run scripts/verify-contract.js --network sepolia",
+    "verify:direct": "hardhat verify --network sepolia"
+  },
+  "keywords": ["solidity", "hardhat", "ethereum", "smart-contracts"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "@nomicfoundation/hardhat-verify": "^2.1.3",
+    "dotenv": "^17.2.3",
+    "hardhat": "^2.26.5",
+    "hardhat-deploy": "^1.0.4",
+    "hardhat-gas-reporter": "^2.3.0",
+    "solidity-coverage": "^0.8.16"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.4.0"
+  }
+}
