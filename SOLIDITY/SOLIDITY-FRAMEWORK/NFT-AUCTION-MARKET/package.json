@@ -1,0 +1,39 @@
+{
+  "name": "nft-auction-market",
+  "version": "1.0.0",
+  "description": "NFT Auction Market with Chainlink Oracle and UUPS Proxy",
+  "main": "index.js",
+  "scripts": {
+    "test": "hardhat test",
+    "compile": "hardhat compile",
+    "node": "hardhat node",
+    "check-config": "node scripts/check-config.js",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
+    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+    "verify": "echo '❌ 请使用以下方式验证合约:' && echo '1. npm run verify:all (验证所有合约)' && echo '2. npm run verify:contract (验证单个合约)' && echo '3. npm run verify:direct -- <合约地址> <构造函数参数...>' && echo '4. npx hardhat verify --network sepolia <合约地址> <构造函数参数...>'",
+    "verify:all": "hardhat run scripts/verify-all.js --network sepolia",
+    "verify:contract": "hardhat run scripts/verify-contract.js --network sepolia",
+    "verify:direct": "hardhat verify --network sepolia",
+    "setup:price-feeds": "hardhat run scripts/setup-price-feeds.js --network sepolia",
+    "gas:analysis": "hardhat run scripts/gas-analysis.js"
+  },
+  "keywords": ["solidity", "hardhat", "ethereum", "smart-contracts", "nft", "auction", "chainlink", "uups"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "@nomicfoundation/hardhat-verify": "^2.1.3",
+    "dotenv": "^17.2.3",
+    "hardhat": "^2.26.5",
+    "hardhat-deploy": "^1.0.4",
+    "hardhat-gas-reporter": "^2.3.0",
+    "solidity-coverage": "^0.8.16"
+  },
+  "dependencies": {
+    "@chainlink/contracts": "^1.0.0",
+    "@openzeppelin/contracts": "^5.4.0",
+    "@openzeppelin/contracts-upgradeable": "^5.4.0",
+    "@openzeppelin/hardhat-upgrades": "^3.1.0"
+  }
+}
+
