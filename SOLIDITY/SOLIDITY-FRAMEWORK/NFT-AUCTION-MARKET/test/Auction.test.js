@@ -175,6 +175,58 @@ describe("Auction", function () {
       // bidder1 应该收到退款（减去 gas 费用）
       expect(balanceAfter).to.be.gte(balanceBefore - bidAmount1);
     });
+
+    it("应该正确更新最高出价者", async function () {
+      const bidAmount1 = ethers.parseEther("0.2");
+      const bidAmount2 = ethers.parseEther("0.3");
+      const bidAmount3 = ethers.parseEther("0.4");
+
+      // 第一次出价
+      await auction.connect(bidder1).bidWithETH(auctionId, { value: bidAmount1 });
+      let auctionInfo = await auction.getAuctionInfo(auctionId);
+      expect(auctionInfo[8]).to.equal(bidder1.address); // highestBidder
+      expect(auctionInfo[9]).to.equal(bidAmount1); // highestBidAmount
+
+      // 第二次出价（更高）
+      await auction.connect(bidder2).bidWithETH(auctionId, { value: bidAmount2 });
+      auctionInfo = await auction.getAuctionInfo(auctionId);
+      expect(auctionInfo[8]).to.equal(bidder2.address); // highestBidder 应该更新为 bidder2
+      expect(auctionInfo[9]).to.equal(bidAmount2); // highestBidAmount 应该更新为 bidAmount2
+
+      // 第三次出价（更高）
+      await auction.connect(bidder1).bidWithETH(auctionId, { value: bidAmount3 });
+      auctionInfo = await auction.getAuctionInfo(auctionId);
+      expect(auctionInfo[8]).to.equal(bidder1.address); // highestBidder 应该更新为 bidder1
+      expect(auctionInfo[9]).to.equal(bidAmount3); // highestBidAmount 应该更新为 bidAmount3
+    });
+
+    it("应该正确处理多个出价者的最高出价者更新", async function () {
+      const bidAmount1 = ethers.parseEther("0.2");
+      const bidAmount2 = ethers.parseEther("0.25");
+      const bidAmount3 = ethers.parseEther("0.35");
+      const bidAmount4 = ethers.parseEther("0.5");
+
+      // bidder1 出价
+      await auction.connect(bidder1).bidWithETH(auctionId, { value: bidAmount1 });
+      let auctionInfo = await auction.getAuctionInfo(auctionId);
+      expect(auctionInfo[8]).to.equal(bidder1.address);
+
+      // bidder2 出价（更高）
+      await auction.connect(bidder2).bidWithETH(auctionId, { value: bidAmount2 });
+      auctionInfo = await auction.getAuctionInfo(auctionId);
+      expect(auctionInfo[8]).to.equal(bidder2.address);
+
+      // bidder1 再次出价（更高）
+      await auction.connect(bidder1).bidWithETH(auctionId, { value: bidAmount3 });
+      auctionInfo = await auction.getAuctionInfo(auctionId);
+      expect(auctionInfo[8]).to.equal(bidder1.address);
+
+      // bidder2 再次出价（最高）
+      await auction.connect(bidder2).bidWithETH(auctionId, { value: bidAmount4 });
+      auctionInfo = await auction.getAuctionInfo(auctionId);
+      expect(auctionInfo[8]).to.equal(bidder2.address);
+      expect(auctionInfo[9]).to.equal(bidAmount4);
+    });
   });
 
   describe("结束拍卖", function () {
