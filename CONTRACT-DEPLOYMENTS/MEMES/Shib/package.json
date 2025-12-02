@@ -1,0 +1,41 @@
+{
+  "name": "shib-meme-token",
+  "version": "1.0.0",
+  "description": "SHIB风格的Meme代币合约项目",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:local": "hardhat run scripts/deploy-shib.js --network localhost",
+    "deploy:sepolia": "hardhat run scripts/deploy-shib.js --network sepolia",
+    "deploy:mainnet": "hardhat run scripts/deploy-shib.js --network mainnet",
+    "init-liquidity:local": "hardhat run scripts/init-liquidity.js --network localhost",
+    "init-liquidity:sepolia": "hardhat run scripts/init-liquidity.js --network sepolia",
+    "init-liquidity:mainnet": "hardhat run scripts/init-liquidity.js --network mainnet",
+    "get-pair:local": "hardhat run scripts/get-pair-address.js --network localhost",
+    "get-pair:sepolia": "hardhat run scripts/get-pair-address.js --network sepolia",
+    "get-pair:mainnet": "hardhat run scripts/get-pair-address.js --network mainnet",
+    "verify:sepolia": "hardhat verify --network sepolia",
+    "verify:mainnet": "hardhat verify --network mainnet"
+  },
+  "keywords": [
+    "solidity",
+    "ethereum",
+    "smart-contracts",
+    "meme-token",
+    "shib"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@openzeppelin/contracts": "^5.0.0",
+    "chai": "^4.3.10",
+    "dotenv": "^16.3.1",
+    "hardhat": "^2.19.0"
+  },
+  "dependencies": {
+    "ethers": "^6.9.0"
+  }
+}
+
