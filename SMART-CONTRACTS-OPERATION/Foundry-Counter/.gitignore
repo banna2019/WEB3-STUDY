@@ -1,0 +1,43 @@
+# Foundry
+out/
+cache/
+broadcast/
+
+# 部署数据(可选，如果需要版本控制可以移除注释)
+# deployments/
+
+# Gas 报告(可选，如果需要版本控制可以移除注释)
+# gas-report/
+
+# 测试报告(可选，如果需要版本控制可以移除注释)
+# test-reports/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Private keys
+keys/
+*.key
+*.pem
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Coverage reports
+coverage/
+coverage.json
+lcov.info
